@@ -1,6 +1,8 @@
-import { prisma } from "@/lib/prisma";
-import { type Lane, type TaskStatus } from "@prisma/client";
 import { hashPassword } from "better-auth/crypto";
+import { prisma } from "@/lib/prisma";
+
+type TaskStatus = "TODO" | "DOING" | "DONE" | "ALERT";
+type Lane = "TECH" | "GESTAO";
 
 const USERS = [
   {
