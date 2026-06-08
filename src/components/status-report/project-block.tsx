@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Trash2, X, Check } from "lucide-react";
+import { Trash2, X, Check, History } from "lucide-react";
 import type { ProjectWithTasks } from "@/types";
 import { TaskLane } from "./task-lane";
+import { TaskHistoryModal } from "./task-history-modal";
 import { deleteProject } from "@/actions/task-actions";
 
 interface ProjectBlockProps {
@@ -21,6 +22,7 @@ export function ProjectBlock({ project }: ProjectBlockProps) {
   const [savedVisible, setSavedVisible] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const handleSaved = useCallback(() => {
     setSavedVisible(true);
@@ -69,6 +71,16 @@ export function ProjectBlock({ project }: ProjectBlockProps) {
         </div>
 
         <div className="flex items-center gap-3 flex-shrink-0 ml-3">
+          <button
+            type="button"
+            onClick={() => setShowModal(true)}
+            className="text-gray-400 hover:text-gray-600 transition-colors p-0.5 rounded"
+            aria-label="Ver histórico de atividades"
+            title="Ver histórico de atividades"
+          >
+            <History size={14} />
+          </button>
+
           <span
             className="flex items-center gap-1 text-xs font-medium transition-opacity duration-300"
             style={{ color: "#3B6D11", opacity: savedVisible ? 1 : 0, fontSize: 11 }}
@@ -133,6 +145,15 @@ export function ProjectBlock({ project }: ProjectBlockProps) {
           />
         </div>
       </div>
+
+      <TaskHistoryModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        tasks={project.tasks}
+        projectColor={project.color}
+        projectName={project.name}
+        onSaved={handleSaved}
+      />
     </div>
   );
 }
