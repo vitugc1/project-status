@@ -66,12 +66,19 @@ export async function createTask(
   projectId: string,
   lane: Lane,
   text: string,
+  dueDate?: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
     if (!text.trim()) return { success: false, error: "Text is required" };
 
     await prisma.task.create({
-      data: { text: text.trim(), lane, projectId, status: "TODO" },
+      data: {
+        text: text.trim(),
+        lane,
+        projectId,
+        status: "TODO",
+        dueDate: dueDate ? new Date(dueDate) : null,
+      },
     });
 
     revalidatePath("/");
@@ -127,5 +134,22 @@ export async function deleteTask(
     return { success: true };
   } catch {
     return { success: false, error: "Failed to delete task" };
+  }
+}
+
+export async function updateTaskDueDate(
+  taskId: string,
+  dueDate: string | null,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    await prisma.task.update({
+      where: { id: taskId },
+      data: { dueDate: dueDate ? new Date(dueDate) : null },
+    });
+
+    revalidatePath("/");
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to update due date" };
   }
 }

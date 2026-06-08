@@ -74,6 +74,7 @@ model Task {
   text      String
   status    TaskStatus @default(TODO)
   lane      Lane
+  dueDate   DateTime?
   projectId String
   project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt DateTime   @default(now())

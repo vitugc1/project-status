@@ -20,6 +20,11 @@ const USERS = [
     email: "alessandre@einstein.org",
     password: "Einstein@2025",
   },
+  {
+    name: "Natasha Porto",
+    email: "natasha@einstein.org",
+    password: "Einstein@2025",
+  },
 ];
 
 type SeedTask = { text: string; status: TaskStatus; lane: Lane };

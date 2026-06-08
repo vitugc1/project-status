@@ -50,18 +50,21 @@ export function TaskLane({
 }: TaskLaneProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [newText, setNewText] = useState("");
+  const [newDueDate, setNewDueDate] = useState("");
   const assignee = ASSIGNEES[lane];
 
   async function handleAdd() {
     if (!newText.trim()) return;
     setIsAdding(false);
     setNewText("");
-    await createTask(projectId, lane, newText.trim());
+    setNewDueDate("");
+    await createTask(projectId, lane, newText.trim(), newDueDate || undefined);
     onSaved?.();
   }
 
   function handleCancel() {
     setNewText("");
+    setNewDueDate("");
     setIsAdding(false);
   }
 
@@ -84,35 +87,43 @@ export function TaskLane({
       </div>
 
       {isAdding ? (
-        <div className="flex items-center gap-1 mt-1 px-1">
+        <div className="flex flex-col gap-1 mt-1 px-1">
           <input
             autoFocus
             type="text"
             value={newText}
             onChange={(e) => setNewText(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter") handleAdd();
+              if (e.key === "Enter" && newText.trim()) handleAdd();
               if (e.key === "Escape") handleCancel();
             }}
             placeholder="Nova atividade…"
             className="flex-1 text-xs border border-gray-300 rounded px-2 py-1 outline-none focus:border-blue-400"
           />
-          <button
-            type="button"
-            onClick={handleAdd}
-            className="text-green-700 hover:text-green-900 p-0.5"
-            aria-label="Confirmar"
-          >
-            <Check size={13} />
-          </button>
-          <button
-            type="button"
-            onClick={handleCancel}
-            className="text-gray-400 hover:text-gray-600 p-0.5"
-            aria-label="Cancelar"
-          >
-            <X size={13} />
-          </button>
+          <input
+            type="date"
+            value={newDueDate}
+            onChange={(e) => setNewDueDate(e.target.value)}
+            className="text-xs border border-gray-300 rounded px-2 py-1 outline-none focus:border-blue-400"
+          />
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={handleAdd}
+              className="text-green-700 hover:text-green-900 p-0.5"
+              aria-label="Confirmar"
+            >
+              <Check size={13} />
+            </button>
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="text-gray-400 hover:text-gray-600 p-0.5"
+              aria-label="Cancelar"
+            >
+              <X size={13} />
+            </button>
+          </div>
         </div>
       ) : (
         <button
