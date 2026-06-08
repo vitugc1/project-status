@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useOptimistic, useRef, useEffect } from "react";
-import { Pencil, Trash2, Check, X, ChevronDown, AlertCircle, Calendar } from "lucide-react";
+import { Pencil, Trash2, Check, X, ChevronDown, AlertCircle, Calendar, Clock } from "lucide-react";
 import type { Task, TaskStatus } from "@prisma/client";
 import {
   updateTaskStatus,
@@ -245,6 +245,17 @@ export function TaskItem({ task, projectColor, onSaved }: TaskItemProps) {
                   </button>
                   <button
                     type="button"
+                    onClick={() => setIsEditingDate(true)}
+                    className={`p-0.5 ${
+                      task.dueDate ? "text-gray-600 hover:text-gray-700" : "text-gray-400 hover:text-gray-600"
+                    }`}
+                    aria-label={task.dueDate ? "Editar prazo" : "Adicionar prazo"}
+                    title={task.dueDate ? "Editar prazo" : "Adicionar prazo"}
+                  >
+                    <Calendar size={12} />
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => setConfirmDelete(true)}
                     className="text-gray-400 hover:text-red-500 p-0.5"
                     aria-label="Excluir"
@@ -300,14 +311,39 @@ export function TaskItem({ task, projectColor, onSaved }: TaskItemProps) {
                   </div>
                 )}
               </div>
+
+              {/* Deadline badge - shown when exists */}
+              {task.dueDate && (
+                <div
+                  className={`flex items-center gap-1 rounded px-2 py-0.5 text-xs font-semibold flex-shrink-0 border ${
+                    deadlineStatus.status === "overdue"
+                      ? "bg-red-100 text-red-800 border-red-300 shadow-sm"
+                      : deadlineStatus.status === "due-soon"
+                        ? "bg-amber-100 text-amber-800 border-amber-300 shadow-sm"
+                        : "bg-blue-50 text-blue-700 border-blue-200"
+                  }`}
+                  title={`Prazo: ${formatDate(task.dueDate)}`}
+                >
+                  {deadlineStatus.status === "overdue" && (
+                    <AlertCircle size={11} className="flex-shrink-0" />
+                  )}
+                  {deadlineStatus.status === "due-soon" && (
+                    <Clock size={11} className="flex-shrink-0" />
+                  )}
+                  {deadlineStatus.status === "normal" && (
+                    <Calendar size={11} className="flex-shrink-0" />
+                  )}
+                  <span>{formatDate(task.dueDate)}</span>
+                </div>
+              )}
             </div>
           </>
         )}
       </div>
 
-      {/* Deadline display and editor */}
-      {isEditingDate ? (
-        <div className="flex items-center gap-1 px-1">
+      {/* Deadline editor - shown when editing */}
+      {isEditingDate && (
+        <div className="flex items-center gap-1 px-1 py-2 bg-gray-50 rounded mt-1">
           <input
             ref={dateInputRef}
             type="date"
@@ -318,61 +354,19 @@ export function TaskItem({ task, projectColor, onSaved }: TaskItemProps) {
           <button
             type="button"
             onClick={handleSaveDueDate}
-            className="text-green-700 hover:text-green-900 p-0.5"
+            className="text-green-700 hover:text-green-900 p-0.5 flex-shrink-0"
           >
             <Check size={13} />
           </button>
           <button
             type="button"
             onClick={handleCancelDateEdit}
-            className="text-gray-400 hover:text-gray-600 p-0.5"
+            className="text-gray-400 hover:text-gray-600 p-0.5 flex-shrink-0"
           >
             <X size={13} />
           </button>
         </div>
-      ) : task.dueDate ? (
-        <div
-          className={`flex items-center gap-1.5 px-1 py-0.5 rounded text-xs cursor-pointer hover:bg-gray-100 ${
-            deadlineStatus.status === "overdue"
-              ? "bg-red-50 text-red-700"
-              : deadlineStatus.status === "due-soon"
-                ? "bg-yellow-50 text-yellow-700"
-                : "text-gray-600"
-          }`}
-          onClick={() => {
-            if (isHovered) setIsEditingDate(true);
-          }}
-        >
-          {deadlineStatus.status === "overdue" && (
-            <AlertCircle size={12} className="flex-shrink-0" />
-          )}
-          {deadlineStatus.status === "due-soon" && (
-            <AlertCircle size={12} className="flex-shrink-0" />
-          )}
-          {deadlineStatus.status === "normal" && (
-            <Calendar size={12} className="flex-shrink-0" />
-          )}
-          <span>
-            {formatDate(task.dueDate)}
-            {deadlineStatus.status === "overdue" && " (VENCIDA)"}
-            {deadlineStatus.status === "due-soon" &&
-              deadlineStatus.daysLeft === 0 &&
-              " (HOJE)"}
-            {deadlineStatus.status === "due-soon" &&
-              deadlineStatus.daysLeft! > 0 &&
-              ` (${deadlineStatus.daysLeft} dias)`}
-          </span>
-        </div>
-      ) : isHovered ? (
-        <button
-          type="button"
-          onClick={() => setIsEditingDate(true)}
-          className="flex items-center gap-1 px-1 text-gray-400 hover:text-gray-600 text-xs"
-        >
-          <Calendar size={12} />
-          Adicionar prazo
-        </button>
-      ) : null}
+      )}
     </div>
   );
 }
